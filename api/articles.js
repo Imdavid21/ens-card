@@ -11,7 +11,10 @@ export default async function handler(req, res) {
         title: p.title,
         subtitle: p.subtitle || "",
         date: p.post_date,
-        url: p.canonical_url || `https://hyperliquidindia.substack.com/p/${p.slug}`,
+        // Free posts open on our own /writing pages, subscriber posts stay on Substack.
+        url: p.slug && (!p.audience || p.audience === "everyone") ? `/writing/${p.slug}` : (p.canonical_url || `https://hyperliquidindia.substack.com/p/${p.slug}`),
+        substackUrl: p.canonical_url || `https://hyperliquidindia.substack.com/p/${p.slug}`,
+        slug: p.slug || null,
         cover: p.cover_image || null,
       }));
     send(res, { articles, updatedAt: Date.now() }, 600, 86400);

@@ -20,6 +20,18 @@
   ],
   "rewrites": [
     {
+      "source": "/writing",
+      "destination": "/api/writing"
+    },
+    {
+      "source": "/writing/",
+      "destination": "/api/writing"
+    },
+    {
+      "source": "/writing/:slug",
+      "destination": "/api/writing?slug=:slug"
+    },
+    {
       "source": "/ens-card",
       "destination": "/"
     },

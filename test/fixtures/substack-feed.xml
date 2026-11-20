@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" version="2.0">
+<channel>
+<title><![CDATA[Hyperliquid India]]></title>
+<link>https://hyperliquidindia.substack.com</link>
+<item>
+<title><![CDATA[Older free post]]></title>
+<description><![CDATA[An older one]]></description>
+<link>https://hyperliquidindia.substack.com/p/older-free-post</link>
+<pubDate>Tue, 18 Aug 2026 13:18:46 GMT</pubDate>
+<enclosure url="https://substackcdn.com/image/fetch/older.png" length="0" type="image/jpeg"/>
+<content:encoded><![CDATA[<p>Plain body text with a <a href="https://hyperliquidindia.substack.com/p/newest-post?utm=x">link to a sibling post</a>.</p>]]></content:encoded>
+</item>
+<item>
+<title><![CDATA[Newest post]]></title>
+<description><![CDATA[A subtitle & more]]></description>
+<link>https://hyperliquidindia.substack.com/p/newest-post</link>
+<pubDate>Mon, 16 Nov 2026 13:02:30 GMT</pubDate>
+<enclosure url="https://substackcdn.com/image/fetch/newest.png" length="0" type="image/jpeg"/>
+<content:encoded><![CDATA[
+<h2 class="header-anchor-post">A section<div class="pencraft icon-container"><button><svg><path d="M0"/></svg></button></div></h2>
+<p>Intro with <strong>bold</strong> and an <a href="https://example.com/out">external link</a>.</p>
+<div class="captioned-image-container"><figure><a class="image-link image2 is-viewable-img" target="_blank" href="https://substackcdn.com/full.png"><div class="image2-inset"><picture><source type="image/webp" srcset="https://substackcdn.com/s_1.webp 424w" sizes="100vw"><img src="https://substackcdn.com/full.png" alt="chart" width="1456" height="800"></picture><div class="image-link-expand"><svg></svg></div></div></a><figcaption class="image-caption">A caption</figcaption></figure></div>
+<div class="twitter-embed" data-attrs="{&quot;url&quot;:&quot;https://x.com/Hyperliquid_In/status/2122313053249388581&quot;,&quot;full_text&quot;:&quot;Thanks for coming &lt;3 &amp; see you soon&quot;,&quot;username&quot;:&quot;Hyperliquid_In&quot;,&quot;name&quot;:&quot;Hyperliquid India&quot;,&quot;video_url&quot;:&quot;https://video.twimg.com/x.mp4&quot;}"><div class="tweet-body">card html that must not survive</div></div>
+<div class="twitter-embed" data-attrs="{&quot;url&quot;:&quot;https://evil.example/status/1&quot;}"></div>
+<p class="button-wrapper" data-attrs="{&quot;url&quot;:&quot;https://luma.com/x6m1zvfh&quot;,&quot;text&quot;:&quot;RSVP Now&quot;,&quot;action&quot;:null}"><a class="button primary" href="https://luma.com/x6m1zvfh"><span>RSVP Now</span></a></p>
+<p class="button-wrapper" data-attrs="{&quot;url&quot;:&quot;https://hyperliquidindia.substack.com/subscribe?&quot;,&quot;text&quot;:&quot;Subscribe now&quot;,&quot;action&quot;:&quot;subscribe&quot;}"><a class="button primary" href="https://hyperliquidindia.substack.com/subscribe?"><span>Subscribe now</span></a></p>
+<div class="subscription-widget-wrap"><div class="subscription-widget">Subscribe widget text</div></div>
+<div class="native-video-embed" data-component-name="VideoPlaceholder" data-attrs="{&quot;mediaUploadId&quot;:&quot;abc&quot;}"></div>
+<div class="youtube-wrap" id="youtube2-dQw4w9WgXcQ" data-attrs="{&quot;videoId&quot;:&quot;dQw4w9WgXcQ&quot;}"><div class="youtube-inner"></div></div>
+<table><thead><tr><th>Venue</th><th>Fee</th></tr></thead><tbody><tr><td>A</td><td>0.01%</td></tr></tbody></table>
+<pre><code>const x = 1;</code></pre>
+<script>window.pwned = 1</script>
+<p onclick="alert(1)">Click <img src="https://substackcdn.com/x.png" onerror="alert(2)"> <a href="javascript:alert(3)">bad link</a></p>
+<iframe src="https://evil.example/embed"></iframe>
+<iframe src="https://player.vimeo.com/video/123"></iframe>
+]]></content:encoded>
+</item>
+<item>
+<title><![CDATA[Subscribers only]]></title>
+<description><![CDATA[Locked]]></description>
+<link>https://hyperliquidindia.substack.com/p/subscribers-only</link>
+<pubDate>Mon, 02 Nov 2026 09:00:00 GMT</pubDate>
+<content:encoded><![CDATA[<p>Teaser.</p><p>This post is for paid subscribers</p>]]></content:encoded>
+</item>
+<item>
+<title><![CDATA[Not a post link]]></title>
+<link>https://hyperliquidindia.substack.com/about</link>
+<pubDate>Mon, 02 Nov 2026 09:00:00 GMT</pubDate>
+</item>
+</channel>
+</rss>
