@@ -154,3 +154,10 @@ test("handler: /api/articles json mode keeps the home grid shape and links free 
   const down = await run("/api/articles?json=1", {});
   assert.deepEqual(down.json.articles, []);
 });
+
+test("active and form elements are removed before sanitizing", () => {
+  const evil = '<p>ok</p><noscript><img src=x onerror=alert(1)></noscript><form action="javascript:alert(2)"><button formaction="javascript:alert(3)">go</button><input name=a></form><video poster="javascript:alert(4)" src="x.mp4"></video><style>*{display:none}</style><textarea><b onclick=alert(5)></textarea>';
+  const out = transformBody(evil).html;
+  assert.match(out, /<p>ok<\/p>/);
+  for (const bad of ["noscript", "onerror", "<form", "formaction", "javascript:", "poster", "<style", "onclick", "<input", "<textarea"]) assert.ok(!out.includes(bad), bad);
+});
