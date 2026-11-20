@@ -32,11 +32,11 @@ export default async function handler(req, res) {
   const slug = Array.isArray(raw) ? raw[0] : raw;
 
   if (req.query?.json) {
-    try {
-      send(res, { articles: articlesPayload(await getJSON(ARCHIVE_URL)), updatedAt: Date.now() }, 600, 86400);
-    } catch (e) {
-      send(res, { articles: [], error: String(e) }, 30, 60);
-    }
+    const [xml, rows] = await Promise.all([settle(getText(FEED_URL)), settle(getJSON(ARCHIVE_URL))]);
+    const posts = mergePosts(rows ? fromArchive(rows) : [], xml ? parseFeed(xml) : []);
+    const body = { articles: articlesPayload(posts), updatedAt: Date.now() };
+    if (!posts.length) body.error = "Substack unreachable";
+    send(res, body, posts.length ? 600 : 30, posts.length ? 86400 : 60);
     return;
   }
 

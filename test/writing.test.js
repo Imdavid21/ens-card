@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import { parseFeed, fromArchive, mergePosts, transformBody, isPaywalled, renderIndex, renderPost, readMinutes } from "../lib/substack.js";
+import { ARCHIVE_URL, parseFeed, fromArchive, mergePosts, transformBody, isPaywalled, renderIndex, renderPost, readMinutes } from "../lib/substack.js";
 import handler from "../api/writing.js";
 
 const XML = readFileSync(new URL("./fixtures/substack-feed.xml", import.meta.url), "utf8");
@@ -137,27 +137,48 @@ test("handler: older post comes from the post API, unknown slug is a 404, bad sl
   assert.equal((await run("/writing?slug=..%2Fadmin", FEEDS)).status, 404);
 });
 
-test("handler: /api/articles json mode keeps the home grid shape and links free posts to /writing", async () => {
-  const rows = [
-    { slug: "free-one", title: "Free one", subtitle: "s", post_date: "2026-11-16T00:00:00Z", audience: "everyone", canonical_url: "https://hyperliquidindia.substack.com/p/free-one", cover_image: "https://c/x.png" },
-    { slug: "locked", title: "Locked", post_date: "2026-11-01T00:00:00Z", audience: "only_paid", canonical_url: "https://hyperliquidindia.substack.com/p/locked" },
+test("handler: /api/articles json mode keeps the home grid shape, falls back to the feed when the archive fails", async () => {
+  const archive = [
+    { slug: "newest-post", title: "Newest post", subtitle: "From archive", post_date: "2026-11-16T13:02:30Z", audience: "everyone", cover_image: "https://c/x.png" },
+    { slug: "ancient", title: "Ancient", post_date: "2025-01-01T00:00:00Z", audience: "everyone" },
+    { slug: "locked-old", title: "Locked old", post_date: "2025-02-01T00:00:00Z", audience: "only_paid" },
   ];
-  const r = await run("/api/articles?json=1", { "https://hyperliquidindia.substack.com/api/v1/archive?sort=new&limit=50": { type: "application/json", body: JSON.stringify(rows) } });
-  assert.equal(r.status, 200);
-  assert.match(r.headers["cache-control"], /s-maxage=600/);
-  assert.equal(r.headers["access-control-allow-origin"], "*");
-  assert.deepEqual(r.json.articles.map((a) => [a.slug, a.url, a.substackUrl]), [
-    ["free-one", "/writing/free-one", "https://hyperliquidindia.substack.com/p/free-one"],
-    ["locked", "https://hyperliquidindia.substack.com/p/locked", "https://hyperliquidindia.substack.com/p/locked"],
+  const both = await run("/api/articles?json=1", { ...FEEDS, [ARCHIVE_URL]: { type: "application/json", body: JSON.stringify(archive) } });
+  assert.equal(both.status, 200);
+  assert.match(both.headers["cache-control"], /s-maxage=600/);
+  assert.equal(both.headers["access-control-allow-origin"], "*");
+  assert.deepEqual(both.json.articles.map((a) => [a.slug, a.url]), [
+    ["newest-post", "/writing/newest-post"],
+    ["subscribers-only", "https://hyperliquidindia.substack.com/p/subscribers-only"],
+    ["older-free-post", "/writing/older-free-post"],
+    ["locked-old", "https://hyperliquidindia.substack.com/p/locked-old"],
+    ["ancient", "/writing/ancient"],
   ]);
-  assert.equal(r.json.articles[0].cover, "https://c/x.png");
+  assert.equal(both.json.articles[0].cover, "https://c/x.png");
+  assert.equal(both.json.articles[0].substackUrl, "https://hyperliquidindia.substack.com/p/newest-post");
+
+  // The archive returned HTTP 400 on production; the feed alone must still fill the grid.
+  const feedOnly = await run("/api/articles?json=1", { ...FEEDS, [ARCHIVE_URL]: { status: 400, body: "bad" } });
+  assert.deepEqual(feedOnly.json.articles.map((a) => a.slug), ["newest-post", "subscribers-only", "older-free-post"]);
+  assert.equal(feedOnly.json.articles[1].url, "https://hyperliquidindia.substack.com/p/subscribers-only");
+
   const down = await run("/api/articles?json=1", {});
   assert.deepEqual(down.json.articles, []);
+  assert.match(down.json.error, /unreachable/);
 });
+
+test("a free post that talks about paywalls is not treated as locked", () => assert.equal(isPaywalled("<p>Why a paywall helps writers</p>"), false));
 
 test("active and form elements are removed before sanitizing", () => {
   const evil = '<p>ok</p><noscript><img src=x onerror=alert(1)></noscript><form action="javascript:alert(2)"><button formaction="javascript:alert(3)">go</button><input name=a></form><video poster="javascript:alert(4)" src="x.mp4"></video><style>*{display:none}</style><textarea><b onclick=alert(5)></textarea>';
   const out = transformBody(evil).html;
   assert.match(out, /<p>ok<\/p>/);
   for (const bad of ["noscript", "onerror", "<form", "formaction", "javascript:", "poster", "<style", "onclick", "<input", "<textarea"]) assert.ok(!out.includes(bad), bad);
+});
+
+test("tweet fallback text drops Substack's own markup but keeps the mentions", () => {
+  const attrs = JSON.stringify({ url: "https://x.com/a/status/123456", username: "a", full_text: 'Thanks <span class="tweet-fake-link">@BitgetWallet</span> and <b>team</b>' });
+  const out = transformBody(`<div class="twitter-embed" data-attrs='${attrs}'></div>`).html;
+  assert.match(out, /<p>Thanks @BitgetWallet and team<\/p>/);
+  assert.ok(!out.includes("tweet-fake-link") && !out.includes("&lt;span"));
 });
