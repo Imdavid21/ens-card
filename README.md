@@ -1,6 +1,10 @@
-# Hyperliquid score page
+# ENS Card
 
-Name (.eth) + X handle -> score out of 100 from public Hyperliquid data -> public leaderboard. 80+ is needed to claim; the first 25 to claim get a card, one per wallet, email and name (david.hl and david.eth count as one).
+Hyperliquid India x ENS. Enter a .eth name and an X handle, get a score out of 100 from public Hyperliquid data, and land on a public leaderboard. 80 or more is needed to claim, and the first 25 to claim get a card, one per person.
+
+Live: https://www.hyperliquidindia.com/ens-card
+Source: https://github.com/Imdavid21/ens-card
+Related: [Wick Runner](https://github.com/Imdavid21/wick-runner), the game from the same event, is its own project at https://www.hyperliquidindia.com/wick-runner
 
 ## Deploy (Vercel + Supabase)
 1. Supabase: run supabase/schema.sql in the SQL editor.
