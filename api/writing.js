@@ -1,11 +1,13 @@
-import { getJSON, getText } from "./_lib.js";
+import { getJSON, getText, send } from "./_lib.js";
 import {
   FEED_URL, ARCHIVE_URL, SUBSTACK, SLUG_RE, slugUrl,
-  parseFeed, fromArchive, mergePosts, isPaywalled, transformBody,
+  parseFeed, fromArchive, mergePosts, isPaywalled, transformBody, articlesPayload,
   renderIndex, renderPost, renderNotFound,
 } from "../lib/substack.js";
 
-// /writing and /writing/:slug (see vercel.json rewrites).
+// /writing and /writing/:slug (see vercel.json rewrites). /api/articles is the same
+// function in json mode: the Hobby plan caps a deployment at 12 functions, so the old
+// api/articles.js lives here now.
 // Cached at the edge for 5 minutes and served stale while it refreshes, so a new
 // Substack post shows up here within minutes without a redeploy.
 
@@ -28,6 +30,15 @@ const settle = (p) => p.then((v) => v, () => null);
 export default async function handler(req, res) {
   const raw = req.query?.slug;
   const slug = Array.isArray(raw) ? raw[0] : raw;
+
+  if (req.query?.json) {
+    try {
+      send(res, { articles: articlesPayload(await getJSON(ARCHIVE_URL)), updatedAt: Date.now() }, 600, 86400);
+    } catch (e) {
+      send(res, { articles: [], error: String(e) }, 30, 60);
+    }
+    return;
+  }
 
   if (!slug) {
     const [xml, rows] = await Promise.all([settle(getText(FEED_URL)), settle(getJSON(ARCHIVE_URL))]);

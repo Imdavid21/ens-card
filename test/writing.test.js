@@ -101,6 +101,7 @@ function run(url, routes) {
     setHeader: (k, v) => { out.headers[k.toLowerCase()] = v; },
     status(c) { out.status = c; return this; },
     send(b) { out.body = b; },
+    json(b) { out.json = b; },
     redirect(c, l) { out.status = c; out.redirect = l; },
   };
   return handler(req, res).then(() => out).finally(() => { globalThis.fetch = real; });
@@ -134,4 +135,22 @@ test("handler: older post comes from the post API, unknown slug is a 404, bad sl
   assert.match(ok.body, /old words/);
   assert.equal((await run("/writing?slug=missing", FEEDS)).status, 404);
   assert.equal((await run("/writing?slug=..%2Fadmin", FEEDS)).status, 404);
+});
+
+test("handler: /api/articles json mode keeps the home grid shape and links free posts to /writing", async () => {
+  const rows = [
+    { slug: "free-one", title: "Free one", subtitle: "s", post_date: "2026-11-16T00:00:00Z", audience: "everyone", canonical_url: "https://hyperliquidindia.substack.com/p/free-one", cover_image: "https://c/x.png" },
+    { slug: "locked", title: "Locked", post_date: "2026-11-01T00:00:00Z", audience: "only_paid", canonical_url: "https://hyperliquidindia.substack.com/p/locked" },
+  ];
+  const r = await run("/api/articles?json=1", { "https://hyperliquidindia.substack.com/api/v1/archive?sort=new&limit=50": { type: "application/json", body: JSON.stringify(rows) } });
+  assert.equal(r.status, 200);
+  assert.match(r.headers["cache-control"], /s-maxage=600/);
+  assert.equal(r.headers["access-control-allow-origin"], "*");
+  assert.deepEqual(r.json.articles.map((a) => [a.slug, a.url, a.substackUrl]), [
+    ["free-one", "/writing/free-one", "https://hyperliquidindia.substack.com/p/free-one"],
+    ["locked", "https://hyperliquidindia.substack.com/p/locked", "https://hyperliquidindia.substack.com/p/locked"],
+  ]);
+  assert.equal(r.json.articles[0].cover, "https://c/x.png");
+  const down = await run("/api/articles?json=1", {});
+  assert.deepEqual(down.json.articles, []);
 });
